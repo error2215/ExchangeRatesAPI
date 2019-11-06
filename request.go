@@ -1,25 +1,21 @@
 package ExchangeRatesAPI
 
 import (
-	"github.com/sirupsen/logrus"
 	"io/ioutil"
 	"net/http"
 )
 
-func (a *ExchangeRatesAPI) Get() map[string]interface{} {
-	res := make(map[string]interface{})
-
-	resp, err := http.Get(a.apiURL + "latest")
+func (a *ExchangeRatesAPI) Get() ([]byte, error) {
+	resp, err := http.Get(a.apiURL + a.buildQuery())
 	if err != nil {
-		logrus.Error(err)
+		return nil, err
 	}
 	defer resp.Body.Close()
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		logrus.Error(err)
+		return nil, err
 	}
 
-	logrus.Info(string(body))
-	return res
+	return body, nil
 }
