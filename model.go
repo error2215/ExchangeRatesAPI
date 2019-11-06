@@ -2,7 +2,9 @@ package ExchangeRatesAPI
 
 import (
 	"errors"
+	"github.com/sirupsen/logrus"
 	"net/url"
+	"regexp"
 	"strings"
 )
 
@@ -64,6 +66,8 @@ func (a *ExchangeRatesAPI) GetBaseCurrency() string {
 func (a *ExchangeRatesAPI) AddDateFrom(from string) *ExchangeRatesAPI {
 	if a.validateDateFormat(from) == nil {
 		a.dateFrom = from
+	} else {
+		logrus.Error(a.validateDateFormat(from))
 	}
 	return a
 }
@@ -76,6 +80,8 @@ func (a *ExchangeRatesAPI) RemoveDateFrom() *ExchangeRatesAPI {
 func (a *ExchangeRatesAPI) AddDateTo(to string) *ExchangeRatesAPI {
 	if a.validateDateFormat(to) == nil {
 		a.dateTo = to
+	} else {
+		logrus.Error(a.validateDateFormat(to))
 	}
 	return a
 }
@@ -88,6 +94,8 @@ func (a *ExchangeRatesAPI) RemoveDateTo() *ExchangeRatesAPI {
 func (a *ExchangeRatesAPI) SetBaseCurrency(currency string) *ExchangeRatesAPI {
 	if a.validateCurrency(currency) == nil {
 		a.baseCurrency = currency
+	} else {
+		logrus.Error(a.validateCurrency(currency))
 	}
 	return a
 }
@@ -95,6 +103,8 @@ func (a *ExchangeRatesAPI) SetBaseCurrency(currency string) *ExchangeRatesAPI {
 func (a *ExchangeRatesAPI) AddRate(currency string) *ExchangeRatesAPI {
 	if a.validateCurrency(currency) == nil {
 		a.symbols = append(a.symbols, currency)
+	} else {
+		logrus.Error(a.validateCurrency(currency))
 	}
 	return a
 }
@@ -146,8 +156,9 @@ func (a *ExchangeRatesAPI) buildQuery() string {
 	return "/latest"
 }
 
-func (a *ExchangeRatesAPI) validateDateFormat(from string) error {
-	if true {
+func (a *ExchangeRatesAPI) validateDateFormat(date string) error {
+	re := regexp.MustCompile("(0?[1-9]|[12][0-9]|3[01])-(0?[1-9]|1[012])-((19|20)\\d\\d)")
+	if re.MatchString(date) {
 		return errors.New("The specified date is invalid. Please use ISO 8601 notation (e.g. YYYY-MM-DD) ")
 	}
 	return nil
