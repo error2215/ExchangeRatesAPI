@@ -157,7 +157,7 @@ func (a *ExchangeRatesAPI) buildQuery() string {
 }
 
 func (a *ExchangeRatesAPI) validateDateFormat(date string) error {
-	re := regexp.MustCompile("/^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$/")
+	re := regexp.MustCompile("((19|20)\\d\\d)-(0?[1-9]|1[012])-(0?[1-9]|[12][0-9]|3[01])")
 	if !re.MatchString(date) {
 		return errors.New("The specified date is invalid. Please use ISO 8601 notation (e.g. YYYY-MM-DD) ")
 	}
