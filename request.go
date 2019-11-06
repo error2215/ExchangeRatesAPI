@@ -9,7 +9,7 @@ import (
 func (a *ExchangeRatesAPI) Get() map[string]interface{} {
 	res := make(map[string]interface{})
 
-	resp, err := http.Get(a.apiURL + "/latest")
+	resp, err := http.Get(a.apiURL + "latest")
 	if err != nil {
 		logrus.Error(err)
 	}
