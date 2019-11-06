@@ -75,7 +75,7 @@ func (a *ExchangeRatesAPI) RemoveDateFrom() *ExchangeRatesAPI {
 
 func (a *ExchangeRatesAPI) AddDateTo(to string) *ExchangeRatesAPI {
 	if a.validateDateFormat(to) == nil {
-		a.dateFrom = to
+		a.dateTo = to
 	}
 	return a
 }
