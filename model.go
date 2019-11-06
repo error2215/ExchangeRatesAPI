@@ -23,5 +23,5 @@ func New() *ExchangeRatesAPI {
 }
 
 func (a *ExchangeRatesAPI) BuildBody() map[string]string {
-	return
+	return map[string]string{}
 }
