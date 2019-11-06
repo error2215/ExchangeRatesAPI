@@ -5,17 +5,17 @@ import (
 	"net/http"
 )
 
-func (a *ExchangeRatesAPI) Get() ([]byte, error) {
+func (a *ExchangeRatesAPI) Get() (string, error) {
 	resp, err := http.Get(a.apiURL + a.buildQuery())
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 	defer resp.Body.Close()
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
-	return body, nil
+	return string(body), nil
 }
