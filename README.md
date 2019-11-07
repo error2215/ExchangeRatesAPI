@@ -1,4 +1,4 @@
-# ExchangeRatesAPI - Currency Exchange Rates API SDK
+# exchange-rates-api - Currency Exchange Rates API SDK
 
 This is an unofficial wrapper for the awesome, free [ExchangeRatesAPI](https://exchangeratesapi.io/), which provides exchange rate lookups courtesy of the [Central European Bank](https://www.ecb.europa.eu/stats/policy_and_exchange_rates/euro_reference_exchange_rates/html/index.en.html).
 
@@ -74,7 +74,7 @@ Please refer to the [API website](https://exchangeratesapi.io/) for further info
 
 The following API reference lists the publicly-available methods for the 
 
-#### `ExchangeRatesAPI` Reference:
+#### `exchange-rates-api` Reference:
 
 `AddDateFrom( from string )`:<br />
 Set the date from which to retrieve historic rates. `from` should be an ISO 8601 date.
