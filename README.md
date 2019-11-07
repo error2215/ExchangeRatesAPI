@@ -6,7 +6,7 @@ This is an unofficial wrapper for the awesome, free [ExchangeRatesAPI](https://e
 
 Use go get to retrieve the SDK to add it to your GOPATH workspace, or project's Go module dependencies.
 
-`go get github.com/error2215/exchange-rates-api
+`go get github.com/error2215/exchange-rates-api`
 
 ### 2. Getting Started:
 
