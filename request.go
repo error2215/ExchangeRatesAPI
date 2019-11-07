@@ -6,8 +6,8 @@ import (
 	"net/http"
 )
 
-func (a *ExchangeRatesAPI) Get(debug bool) (string, error) {
-	if debug {
+func (a *ExchangeRatesAPI) Get() (string, error) {
+	if a.debug {
 		logrus.Info("Query:" + a.buildQuery())
 	}
 	resp, err := http.Get(a.apiURL + a.buildQuery())

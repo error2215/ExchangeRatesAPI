@@ -16,6 +16,7 @@ type ExchangeRatesAPI struct {
 	apiURL         string
 	dateRegExp     string
 	currencyRegExp string
+	debug          bool
 }
 
 var supportedCurrencies = []string{
@@ -25,8 +26,9 @@ var supportedCurrencies = []string{
 	"SGD", "THB", "ZAR",
 }
 
-func New() *ExchangeRatesAPI {
+func New(debug bool) *ExchangeRatesAPI {
 	return &ExchangeRatesAPI{
+		debug:        debug,
 		dateFrom:     "",
 		dateTo:       "",
 		baseCurrency: "EUR",
@@ -66,7 +68,7 @@ func (a *ExchangeRatesAPI) GetBaseCurrency() string {
 func (a *ExchangeRatesAPI) AddDateFrom(from string) *ExchangeRatesAPI {
 	if a.validateDateFormat(from) == nil {
 		a.dateFrom = from
-	} else {
+	} else if a.debug {
 		logrus.Error(a.validateDateFormat(from))
 	}
 	return a
@@ -80,7 +82,7 @@ func (a *ExchangeRatesAPI) RemoveDateFrom() *ExchangeRatesAPI {
 func (a *ExchangeRatesAPI) AddDateTo(to string) *ExchangeRatesAPI {
 	if a.validateDateFormat(to) == nil {
 		a.dateTo = to
-	} else {
+	} else if a.debug {
 		logrus.Error(a.validateDateFormat(to))
 	}
 	return a
@@ -94,7 +96,7 @@ func (a *ExchangeRatesAPI) RemoveDateTo() *ExchangeRatesAPI {
 func (a *ExchangeRatesAPI) SetBaseCurrency(currency string) *ExchangeRatesAPI {
 	if a.validateCurrency(currency) == nil {
 		a.baseCurrency = currency
-	} else {
+	} else if a.debug {
 		logrus.Error(a.validateCurrency(currency))
 	}
 	return a
@@ -103,7 +105,7 @@ func (a *ExchangeRatesAPI) SetBaseCurrency(currency string) *ExchangeRatesAPI {
 func (a *ExchangeRatesAPI) AddRate(currency string) *ExchangeRatesAPI {
 	if a.validateCurrency(currency) == nil {
 		a.symbols = append(a.symbols, currency)
-	} else {
+	} else if a.debug {
 		logrus.Error(a.validateCurrency(currency))
 	}
 	return a
@@ -161,7 +163,6 @@ func (a *ExchangeRatesAPI) validateDateFormat(date string) error {
 	if !re.MatchString(date) {
 		return errors.New("The specified date is invalid. Please use ISO 8601 notation (e.g. YYYY-MM-DD) ")
 	}
-	logrus.Info("validated")
 	return nil
 }
 
