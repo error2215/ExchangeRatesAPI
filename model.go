@@ -134,6 +134,7 @@ func (a *ExchangeRatesAPI) buildQuery() string {
 		if a.GetBaseCurrency() != "EUR" {
 			values.Set("base", a.GetBaseCurrency())
 		}
+		return query + values.Encode()
 	} else if a.dateFrom != "" {
 		query = "/" + a.dateFrom
 		if len(a.GetSymbols()) > 0 {
@@ -153,7 +154,6 @@ func (a *ExchangeRatesAPI) buildQuery() string {
 		}
 		return query + values.Encode()
 	}
-	return "/latest"
 }
 
 func (a *ExchangeRatesAPI) validateDateFormat(date string) error {
