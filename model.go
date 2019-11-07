@@ -161,6 +161,7 @@ func (a *ExchangeRatesAPI) validateDateFormat(date string) error {
 	if !re.MatchString(date) {
 		return errors.New("The specified date is invalid. Please use ISO 8601 notation (e.g. YYYY-MM-DD) ")
 	}
+	logrus.Info("validated")
 	return nil
 }
 
