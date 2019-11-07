@@ -13,7 +13,7 @@ type exchangeRatesAPI struct {
 	dateFrom     string   // Date from which to request historic rates ('start_at' in url query)
 	dateTo       string   // Date to which to request historic rates ('end_at' int url query)
 	baseCurrency string   // The base currency (default is EUR) ('base' in url query)
-	symbols      []string // Exchange symbols to fetch ('symbols' in url query)
+	rates        []string // Exchange rates to fetch ('rates' in url query)
 	apiURL       string   // The URL of the API ('https://api.exchangeratesapi.io')
 	debug        bool     // debug mode (write errors in console if enable)
 }
@@ -32,7 +32,7 @@ func New(debug bool) *exchangeRatesAPI {
 		dateFrom:     "",
 		dateTo:       "",
 		baseCurrency: "EUR",
-		symbols:      []string{},
+		rates:        []string{},
 		apiURL:       "https://api.exchangeratesapi.io",
 	}
 }
@@ -57,14 +57,14 @@ func (a *exchangeRatesAPI) GetSupportedCurrenciesInString(delimiter string) stri
 	return strings.Join(supportedCurrencies, delimiter)
 }
 
-// Get the symbols
-func (a *exchangeRatesAPI) GetSymbols() []string {
-	return a.symbols
+// Get the rates
+func (a *exchangeRatesAPI) GetRates() []string {
+	return a.rates
 }
 
-// Get the symbols in string with delimiter parameter
-func (a *exchangeRatesAPI) GetSymbolsInString(delimiter string) string {
-	return strings.Join(a.symbols, delimiter)
+// Get the rates in string with delimiter parameter
+func (a *exchangeRatesAPI) GetRatesInString(delimiter string) string {
+	return strings.Join(a.rates, delimiter)
 }
 
 // Get the base currency
@@ -74,10 +74,10 @@ func (a *exchangeRatesAPI) GetBaseCurrency() string {
 
 // Add a from date
 func (a *exchangeRatesAPI) AddDateFrom(from string) *exchangeRatesAPI {
-	if a.validateDateFormat(from) == nil {
+	if a.ValidateDateFormat(from) == nil {
 		a.dateFrom = from
 	} else if a.debug {
-		logrus.Error(a.validateDateFormat(from))
+		logrus.Error(a.ValidateDateFormat(from))
 	}
 	return a
 }
@@ -90,10 +90,10 @@ func (a *exchangeRatesAPI) RemoveDateFrom() *exchangeRatesAPI {
 
 //Add a to date
 func (a *exchangeRatesAPI) AddDateTo(to string) *exchangeRatesAPI {
-	if a.validateDateFormat(to) == nil {
+	if a.ValidateDateFormat(to) == nil {
 		a.dateTo = to
 	} else if a.debug {
-		logrus.Error(a.validateDateFormat(to))
+		logrus.Error(a.ValidateDateFormat(to))
 	}
 	return a
 }
@@ -106,29 +106,29 @@ func (a *exchangeRatesAPI) RemoveDateTo() *exchangeRatesAPI {
 
 //Set base currency
 func (a *exchangeRatesAPI) SetBaseCurrency(currency string) *exchangeRatesAPI {
-	if a.validateCurrency(currency) == nil {
+	if a.ValidateCurrency(currency) == nil {
 		a.baseCurrency = currency
 	} else if a.debug {
-		logrus.Error(a.validateCurrency(currency))
+		logrus.Error(a.ValidateCurrency(currency))
 	}
 	return a
 }
 
 //Add specified currency to the returned rates
 func (a *exchangeRatesAPI) AddRate(currency string) *exchangeRatesAPI {
-	if a.validateCurrency(currency) == nil {
-		a.symbols = append(a.symbols, currency)
+	if a.ValidateCurrency(currency) == nil {
+		a.rates = append(a.rates, currency)
 	} else if a.debug {
-		logrus.Error(a.validateCurrency(currency))
+		logrus.Error(a.ValidateCurrency(currency))
 	}
 	return a
 }
 
 //Remove specified currency from returned rates
 func (a *exchangeRatesAPI) RemoveRate(currency string) *exchangeRatesAPI {
-	for num, rate := range a.symbols {
+	for num, rate := range a.rates {
 		if rate == currency {
-			a.symbols = append(a.symbols[:num], a.symbols[num+1:]...)
+			a.rates = append(a.rates[:num], a.rates[num+1:]...)
 			break
 		}
 	}
@@ -145,8 +145,8 @@ func (a *exchangeRatesAPI) buildQuery() string {
 		if a.GetDateTo() != "" {
 			values.Set("end_at", a.GetDateTo())
 		}
-		if len(a.GetSymbols()) > 0 {
-			values.Set("symbols", a.GetSymbolsInString(","))
+		if len(a.GetRates()) > 0 {
+			values.Set("rates", a.GetRatesInString(","))
 		}
 		if a.GetBaseCurrency() != "EUR" {
 			values.Set("base", a.GetBaseCurrency())
@@ -154,8 +154,8 @@ func (a *exchangeRatesAPI) buildQuery() string {
 		return query + values.Encode()
 	} else if a.dateFrom != "" {
 		query = "/" + a.dateFrom
-		if len(a.GetSymbols()) > 0 {
-			values.Set("symbols", a.GetSymbolsInString(","))
+		if len(a.GetRates()) > 0 {
+			values.Set("rates", a.GetRatesInString(","))
 		}
 		if a.GetBaseCurrency() != "EUR" {
 			values.Set("base", a.GetBaseCurrency())
@@ -163,8 +163,8 @@ func (a *exchangeRatesAPI) buildQuery() string {
 		return query + values.Encode()
 	} else {
 		query = "/latest?"
-		if len(a.GetSymbols()) > 0 {
-			values.Set("symbols", a.GetSymbolsInString(","))
+		if len(a.GetRates()) > 0 {
+			values.Set("rates", a.GetRatesInString(","))
 		}
 		if a.GetBaseCurrency() != "EUR" {
 			values.Set("base", a.GetBaseCurrency())
@@ -174,7 +174,7 @@ func (a *exchangeRatesAPI) buildQuery() string {
 }
 
 // Validate date format, must be ISO 8601 notation (e.g. YYYY-MM-DD)
-func (a *exchangeRatesAPI) validateDateFormat(date string) error {
+func (a *exchangeRatesAPI) ValidateDateFormat(date string) error {
 	re := regexp.MustCompile("((19|20)\\d\\d)-(0?[1-9]|1[012])-(0?[1-9]|[12][0-9]|3[01])")
 	if !re.MatchString(date) {
 		return errors.New("The specified date is invalid. Please use ISO 8601 notation (e.g. YYYY-MM-DD) ")
@@ -183,7 +183,7 @@ func (a *exchangeRatesAPI) validateDateFormat(date string) error {
 }
 
 // Validate currency code, must be in list of supported currencies and ISO 4217 notation (e.g. EUR).
-func (a *exchangeRatesAPI) validateCurrency(currency string) error {
+func (a *exchangeRatesAPI) ValidateCurrency(currency string) error {
 	for _, supported := range supportedCurrencies {
 		if supported == currency {
 			return nil
