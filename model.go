@@ -123,7 +123,7 @@ func (a *ExchangeRatesAPI) buildQuery() string {
 	query := ""
 	values := url.Values{}
 	if a.dateFrom != "" && a.dateTo != "" {
-		query = "/history"
+		query = "/history?"
 		values.Set("start_at", a.GetDateFrom())
 		if a.GetDateTo() != "" {
 			values.Set("end_at", a.GetDateTo())
@@ -145,7 +145,7 @@ func (a *ExchangeRatesAPI) buildQuery() string {
 		}
 		return query + values.Encode()
 	} else {
-		query = "/latest"
+		query = "/latest?"
 		if len(a.GetSymbols()) > 0 {
 			values.Set("symbols", a.GetSymbolsInString(","))
 		}
