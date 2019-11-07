@@ -2,23 +2,23 @@ package ExchangeRatesAPI
 
 import (
 	"errors"
-	"github.com/sirupsen/logrus"
 	"net/url"
 	"regexp"
 	"strings"
+
+	"github.com/sirupsen/logrus"
 )
 
-type ExchangeRatesAPI struct {
-	dateFrom       string
-	dateTo         string
-	baseCurrency   string
-	symbols        []string
-	apiURL         string
-	dateRegExp     string
-	currencyRegExp string
-	debug          bool
+type exchangeRatesAPI struct {
+	dateFrom     string   // Date from which to request historic rates ('start_at' in url query)
+	dateTo       string   // Date to which to request historic rates ('end_at' int url query)
+	baseCurrency string   // The base currency (default is EUR) ('base' in url query)
+	symbols      []string // Exchange symbols to fetch ('symbols' in url query)
+	apiURL       string   // The URL of the API ('https://api.exchangeratesapi.io')
+	debug        bool     // debug mode (write errors in console if enable)
 }
 
+// List of supported currencies
 var supportedCurrencies = []string{
 	"USD", "GBP", "EUR", "JPY", "BGN", "CZK", "DKK", "HUF", "PLN", "RON",
 	"SEK", "CHF", "ISK", "NOK", "HRK", "RUB", "TRY", "AUD", "BRL", "CAD",
@@ -26,8 +26,8 @@ var supportedCurrencies = []string{
 	"SGD", "THB", "ZAR",
 }
 
-func New(debug bool) *ExchangeRatesAPI {
-	return &ExchangeRatesAPI{
+func New(debug bool) *exchangeRatesAPI {
+	return &exchangeRatesAPI{
 		debug:        debug,
 		dateFrom:     "",
 		dateTo:       "",
@@ -37,35 +37,43 @@ func New(debug bool) *ExchangeRatesAPI {
 	}
 }
 
-func (a *ExchangeRatesAPI) GetDateFrom() string {
+// Get the 'from' date
+func (a *exchangeRatesAPI) GetDateFrom() string {
 	return a.dateFrom
 }
 
-func (a *ExchangeRatesAPI) GetDateTo() string {
+// Get the 'to' date
+func (a *exchangeRatesAPI) GetDateTo() string {
 	return a.dateTo
 }
 
-func (a *ExchangeRatesAPI) GetSupportedCurrencies() []string {
+// Get the supported currencies
+func (a *exchangeRatesAPI) GetSupportedCurrencies() []string {
 	return supportedCurrencies
 }
 
-func (a *ExchangeRatesAPI) GetSupportedCurrenciesInString(delimiter string) string {
+// Get the supported currencies in string with delimiter parameter
+func (a *exchangeRatesAPI) GetSupportedCurrenciesInString(delimiter string) string {
 	return strings.Join(supportedCurrencies, delimiter)
 }
 
-func (a *ExchangeRatesAPI) GetSymbols() []string {
+// Get the symbols
+func (a *exchangeRatesAPI) GetSymbols() []string {
 	return a.symbols
 }
 
-func (a *ExchangeRatesAPI) GetSymbolsInString(delimiter string) string {
+// Get the symbols in string with delimiter parameter
+func (a *exchangeRatesAPI) GetSymbolsInString(delimiter string) string {
 	return strings.Join(a.symbols, delimiter)
 }
 
-func (a *ExchangeRatesAPI) GetBaseCurrency() string {
+// Get the base currency
+func (a *exchangeRatesAPI) GetBaseCurrency() string {
 	return a.baseCurrency
 }
 
-func (a *ExchangeRatesAPI) AddDateFrom(from string) *ExchangeRatesAPI {
+// Add a from date
+func (a *exchangeRatesAPI) AddDateFrom(from string) *exchangeRatesAPI {
 	if a.validateDateFormat(from) == nil {
 		a.dateFrom = from
 	} else if a.debug {
@@ -74,12 +82,14 @@ func (a *ExchangeRatesAPI) AddDateFrom(from string) *ExchangeRatesAPI {
 	return a
 }
 
-func (a *ExchangeRatesAPI) RemoveDateFrom() *ExchangeRatesAPI {
+// Remove a from date
+func (a *exchangeRatesAPI) RemoveDateFrom() *exchangeRatesAPI {
 	a.dateFrom = ""
 	return a
 }
 
-func (a *ExchangeRatesAPI) AddDateTo(to string) *ExchangeRatesAPI {
+//Add a to date
+func (a *exchangeRatesAPI) AddDateTo(to string) *exchangeRatesAPI {
 	if a.validateDateFormat(to) == nil {
 		a.dateTo = to
 	} else if a.debug {
@@ -88,12 +98,14 @@ func (a *ExchangeRatesAPI) AddDateTo(to string) *ExchangeRatesAPI {
 	return a
 }
 
-func (a *ExchangeRatesAPI) RemoveDateTo() *ExchangeRatesAPI {
+//Remove a to date
+func (a *exchangeRatesAPI) RemoveDateTo() *exchangeRatesAPI {
 	a.dateTo = ""
 	return a
 }
 
-func (a *ExchangeRatesAPI) SetBaseCurrency(currency string) *ExchangeRatesAPI {
+//Set base currency
+func (a *exchangeRatesAPI) SetBaseCurrency(currency string) *exchangeRatesAPI {
 	if a.validateCurrency(currency) == nil {
 		a.baseCurrency = currency
 	} else if a.debug {
@@ -102,7 +114,8 @@ func (a *ExchangeRatesAPI) SetBaseCurrency(currency string) *ExchangeRatesAPI {
 	return a
 }
 
-func (a *ExchangeRatesAPI) AddRate(currency string) *ExchangeRatesAPI {
+//Add specified currency to the returned rates
+func (a *exchangeRatesAPI) AddRate(currency string) *exchangeRatesAPI {
 	if a.validateCurrency(currency) == nil {
 		a.symbols = append(a.symbols, currency)
 	} else if a.debug {
@@ -111,7 +124,8 @@ func (a *ExchangeRatesAPI) AddRate(currency string) *ExchangeRatesAPI {
 	return a
 }
 
-func (a *ExchangeRatesAPI) RemoveRate(currency string) *ExchangeRatesAPI {
+//Remove specified currency from returned rates
+func (a *exchangeRatesAPI) RemoveRate(currency string) *exchangeRatesAPI {
 	for num, rate := range a.symbols {
 		if rate == currency {
 			a.symbols = append(a.symbols[:num], a.symbols[num+1:]...)
@@ -121,7 +135,8 @@ func (a *ExchangeRatesAPI) RemoveRate(currency string) *ExchangeRatesAPI {
 	return a
 }
 
-func (a *ExchangeRatesAPI) buildQuery() string {
+// Build a URL query from parameters
+func (a *exchangeRatesAPI) buildQuery() string {
 	query := ""
 	values := url.Values{}
 	if a.dateFrom != "" && a.dateTo != "" {
@@ -158,7 +173,8 @@ func (a *ExchangeRatesAPI) buildQuery() string {
 	}
 }
 
-func (a *ExchangeRatesAPI) validateDateFormat(date string) error {
+// Validate date format, must be ISO 8601 notation (e.g. YYYY-MM-DD)
+func (a *exchangeRatesAPI) validateDateFormat(date string) error {
 	re := regexp.MustCompile("((19|20)\\d\\d)-(0?[1-9]|1[012])-(0?[1-9]|[12][0-9]|3[01])")
 	if !re.MatchString(date) {
 		return errors.New("The specified date is invalid. Please use ISO 8601 notation (e.g. YYYY-MM-DD) ")
@@ -166,11 +182,12 @@ func (a *ExchangeRatesAPI) validateDateFormat(date string) error {
 	return nil
 }
 
-func (a *ExchangeRatesAPI) validateCurrency(currency string) error {
+// Validate currency code, must be in list of supported currencies and ISO 4217 notation (e.g. EUR).
+func (a *exchangeRatesAPI) validateCurrency(currency string) error {
 	for _, supported := range supportedCurrencies {
 		if supported == currency {
 			return nil
 		}
 	}
-	return errors.New("The specified currency code is not currently supported ")
+	return errors.New("The specified currency code is not currently supported or it has bad format, must be ISO 4217 notation (e.g. EUR) ")
 }

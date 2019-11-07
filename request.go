@@ -1,12 +1,14 @@
 package ExchangeRatesAPI
 
 import (
-	"github.com/sirupsen/logrus"
 	"io/ioutil"
 	"net/http"
+
+	"github.com/sirupsen/logrus"
 )
 
-func (a *ExchangeRatesAPI) Get() (string, error) {
+// Make API request with set parameters
+func (a *exchangeRatesAPI) Get() (string, error) {
 	if a.debug {
 		logrus.Info("Query:" + a.buildQuery())
 	}
